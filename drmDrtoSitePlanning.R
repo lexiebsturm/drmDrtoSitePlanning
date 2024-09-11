@@ -3,13 +3,20 @@ getwd()
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load("dplyr", "purrr", "stringr")
 
+#DRM Site list that Jenni sent
 drmSites=read.csv("C:/Users/Lexie.Sturm/Documents/GitHub/drmDrtoSitePlanning/Data/DRM_DRTO_2024_CoralTeamList_SheddCompleted_grid.csv")
+
+#All NCRMP fish sites in DRTO
 ncrmpFishSites=read.csv("C:/Users/Lexie.Sturm/Documents/GitHub/drmDrtoSitePlanning/Data/dt24_fish_samplist.csv")
+
+#All NCRMP benthic sites in DRTO
 ncrmpBenthicSites=read.csv("C:/Users/Lexie.Sturm/Documents/GitHub/drmDrtoSitePlanning/Data/dt24_benthic_samplist.csv")
 
+#Name the sites "Benthic"
 ncrmpBenthicSites <- ncrmpBenthicSites %>%
   mutate(Source = "Benthic")
 
+#Name the sites "Fish"
 ncrmpFishSites <- ncrmpFishSites %>%
   mutate(Source = "Fish")
 
@@ -17,13 +24,14 @@ ncrmpFishSites <- ncrmpFishSites %>%
 common_columns <- intersect(colnames(ncrmpBenthicSites), colnames(ncrmpFishSites))
 common_columns <- setdiff(common_columns, "Source")
 
-# Perform the full join on the common columns
+# Perform the full join on the common columns, except for source
 ncrmpAllSites <- ncrmpBenthicSites %>%
   full_join(ncrmpFishSites, by = common_columns)
 
 # View the first few rows of the result to check
 head(ncrmpAllSites)
 
+#We will call the sites by if it is only a fish site, benthic site, or both
 ncrmpAllSites <- ncrmpAllSites %>%
   mutate(survey_type = case_when(
     is.na(Source.x) & !is.na(Source.y) ~ "Fish",
@@ -34,7 +42,7 @@ ncrmpAllSites <- ncrmpAllSites %>%
   # Remove the Source.x and Source.y columns
   dplyr::select(-Source.x, -Source.y)
 
-# Rename the column
+# Rename the columns of the DRM df to match NCRMP
 drmSites <- drmSites %>%
   rename(
     mapgrid_nr = grid_id_50,
@@ -46,9 +54,10 @@ drmSites <- drmSites %>%
     subregion_nr = subreg_nr 
   )
 
-# Join the dataframes by map_grid_nr
+# Join the dataframes by mapgrid_nr
 allDrtoSites <- drmSites %>%
   full_join(ncrmpAllSites, by = c("mapgrid_nr"))
+#Not many sites share a mapgrid_nr...
 
 #"lat_degrees", "lon_degrees", "mpa_nr", "subregion_nr", "habitat_cd", "psu_depth"
 
