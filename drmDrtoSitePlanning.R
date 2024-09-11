@@ -65,7 +65,7 @@ allDrtoSites <- drmSites %>%
 x_columns <- grep("\\.x$", colnames(allDrtoSites), value = TRUE)
 y_columns <- grep("\\.y$", colnames(allDrtoSites), value = TRUE)
 
-# Reorder columns
+# Reorder columns so all the same columns from the parent dfs are next to each other so we can make sure all the info matches up
 # For each `.x` column, find the corresponding `.y` column and rearrange them
 new_order <- c()
 for (x_col in x_columns) {
@@ -95,19 +95,19 @@ head(allDrtoSites)
 
 write.csv(allDrtoSites, file = "./Data/allDrtoSites.csv", row.names = FALSE)
 
-# Filter rows where both DRM_ID and psu_id have non-missing values
+# Filter rows where both DRM_ID and psu_id have non-missing values, these are sites with the same mapgrid_nr in common
 drtoCommonSites <- allDrtoSites %>%
   filter(!is.na(DRM_ID) & !is.na(psu_id))
 
-# Filter rows where Status is "Not Surveyed"
+# Filter rows where Status is "Not Surveyed," these are new sites
 newDrtoCommonSites <- drtoCommonSites %>%
   filter(Status == "Not surveyed")
 
-# Remove columns with .y suffix
+# Clean up the df, Remove columns with .y suffix
 newDrtoCommonSites <- newDrtoCommonSites %>%
   select(-ends_with(".y"))
 
-# Rename columns with .x suffix by removing the suffix
+# Clean up the df, Rename columns with .x suffix by removing the suffix
 newDrtoCommonSites <- newDrtoCommonSites %>%
   rename_with(~ str_remove(., "\\.x$")) %>%
   select(-lat_deg, -lon_deg, -psu_vrel, -Shape_Leng, -Shape_Area) #Remove extraneous columns
