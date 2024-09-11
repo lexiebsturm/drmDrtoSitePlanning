@@ -106,3 +106,5 @@ newDrtoCommonSites <- newDrtoCommonSites %>%
 # View the first few rows to check the result
 head(newDrtoCommonSites)
 
+write.csv(newDrtoCommonSites, file = "./Data/newDrtoCommonSites.csv", row.names = FALSE)
+
