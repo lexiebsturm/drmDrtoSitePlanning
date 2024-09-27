@@ -117,3 +117,27 @@ head(newDrtoCommonSites)
 
 write.csv(newDrtoCommonSites, file = "./Data/newDrtoCommonSites.csv", row.names = FALSE)
 
+################################################################################
+#All DRM Sites
+# Filter rows where both DRM_ID and psu_id have non-missing values, these are sites with the same mapgrid_nr in common
+drmDrtoSites <- allDrtoSites %>%
+  filter(!is.na(DRM_ID))
+
+# Filter rows where Status is "Not Surveyed," these are new sites
+drmDrtoSites <- drmDrtoSites %>%
+  filter(Status == "Not surveyed")
+
+# Clean up the df, Remove columns with .y suffix
+drmDrtoSites <- drmDrtoSites %>%
+  select(-ends_with(".y"))
+
+# Clean up the df, Rename columns with .x suffix by removing the suffix
+drmDrtoSites <- drmDrtoSites %>%
+  rename_with(~ str_remove(., "\\.x$")) %>%
+  select(-lat_deg, -lon_deg, -psu_vrel, -Shape_Leng, -Shape_Area) #Remove extraneous columns
+
+# View the first few rows to check the result
+head(drmDrtoSites)
+
+write.csv(drmDrtoSites, file = "./Data/drmDrtoSites.csv", row.names = FALSE)
+
